@@ -10,10 +10,15 @@ int hashFunc(int key) { return key % SIZE; }
 // linear probing insert
 void insertKey(int key) {
   int index = hashFunc(key);
-  int i = 0;
+  int i = 1;
 
   while (tableArr[index] != -1) {
-    index = (hashFunc(key) + ++i) % SIZE;
+    // for slot 1
+    index = (hashFunc(key) + i) % SIZE;
+
+    // for slot 2 make it i*2
+    // for slot 3 make it i*3;
+    i++;
   }
   tableArr[index] = key;
 }
