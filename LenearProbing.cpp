@@ -1,45 +1,37 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-class HashTable {
-private:
-  static const int SIZE = 11;
-  int table[SIZE];
+const int SIZE = 11;
+int tableArr[SIZE];
 
-public:
-  HashTable() { fill(table, table + SIZE, -1); }
+// simple hash function
+int hashFunc(int key) { return key % SIZE; }
 
-  int hash(int key) { return key % SIZE; }
+// linear probing insert
+void insertKey(int key) {
+  int index = hashFunc(key);
+  int i = 0;
 
-  void insert(int key) {
-    int index = hash(key);
-    int i = 0;
-
-    // h(k,i) = (h(k) + i) % m
-    while (table[index] != -1) {
-      index = (hash(key) + ++i) % SIZE;
-    }
-    table[index] = key;
+  while (tableArr[index] != -1) {
+    index = (hashFunc(key) + ++i) % SIZE;
   }
+  tableArr[index] = key;
+}
 
-  void print() {
-    for (int i = 0; i < SIZE; i++) {
-      cout << i << ": " << table[i] << endl;
-    }
+void printTable() {
+  for (int i = 0; i < SIZE; i++) {
+    cout << i << ": " << tableArr[i] << "\n";
   }
-};
+}
 
 int main() {
-#ifndef ONLINE_JUDGE
-  cout << "Debug mode" << endl;
-#endif
+  fill(tableArr, tableArr + SIZE, -1);
 
-  HashTable ht;
-  ht.insert(5);  // 5 % 11 = 5
-  ht.insert(15); // 15 % 11 = 4
-  ht.insert(3);  // 3 % 11 = 3
+  insertKey(5);  // goes to 5
+  insertKey(15); // collides at 4, but 4 empty -> goes to 4
+  insertKey(3);  // goes to 3
 
-  ht.print();
+  printTable();
 
   return 0;
 }
