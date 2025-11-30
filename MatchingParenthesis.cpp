@@ -1,76 +1,50 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-struct Node {
-  char data;
-  Node *next;
-  Node(char x) : data(x), next(nullptr) {}
-};
+const int MAXN = 1000;
+char st[MAXN];
+int top = -1;
 
-class Stack {
-private:
-  Node *top;
+bool isEmpty() { return top == -1; }
 
-public:
-  Stack() : top(nullptr) {}
+bool isFull() { return top == MAXN - 1; }
 
-  void push(char x) {
-    Node *newNode = new Node(x);
-    newNode->next = top;
-    top = newNode;
-  }
+void push(char x) {
+  if (!isFull())
+    st[++top] = x;
+}
 
-  char pop() {
-    if (top == nullptr)
-      return '#'; // Invalid char
-    char res = top->data;
-    Node *temp = top;
-    top = top->next;
-    delete temp;
-    return res;
-  }
-
-  char peek() { return top ? top->data : '#'; }
-
-  bool empty() { return top == nullptr; }
-};
+int pop() {
+  if (isEmpty())
+    return -1;
+  return st[top--];
+}
 
 bool isValid(string s) {
-  Stack st;
-
   for (char c : s) {
     if (c == '(' || c == '{' || c == '[') {
-      st.push(c);
+      push(c);
     } else {
-      if (st.empty())
+      int t = pop();
+      if (t == -1)
         return false;
 
-      char top = st.pop();
-
-      if ((c == ')' && top != '(') || (c == '}' && top != '{') ||
-          (c == ']' && top != '[')) {
+      if ((c == ')' && t != '(') || (c == '}' && t != '{') ||
+          (c == ']' && t != '['))
         return false;
-      }
     }
   }
-
-  return st.empty();
+  return isEmpty();
 }
 
 int main() {
-#ifndef ONLINE_JUDGE
-  cout << "Debug mode" << endl;
-#endif
-
   string expr;
-  cout << "Enter expression: ";
   cin >> expr;
 
-  if (isValid(expr)) {
-    cout << "Valid parentheses!" << endl;
-  } else {
-    cout << "Invalid parentheses!" << endl;
-  }
+  if (isValid(expr))
+    cout << "Valid parentheses!\n";
+  else
+    cout << "Invalid parentheses!\n";
 
   return 0;
 }
