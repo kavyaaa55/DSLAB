@@ -7,104 +7,118 @@ struct Node {
   Node(int x) : data(x), left(nullptr), right(nullptr) {}
 };
 
-// ---------- BST INSERT ----------
-Node *insertBST(Node *root, int x) {
-  if (!root)
-    return new Node(x);
-  if (x < root->data)
-    root->left = insertBST(root->left, x);
-  else if (x > root->data)
-    root->right = insertBST(root->right, x);
-  return root;
-}
+Node *root = nullptr; // GLOBAL ROOT
 
-// ---------- BST SEARCH ----------
-bool searchRec(Node *root, int key) {
-  if (!root)
-    return false;
-  if (root->data == key)
-    return true;
-  if (key < root->data)
-    return searchRec(root->left, key);
-  else
-    return searchRec(root->right, key);
-}
+// ---------- INSERT (void, no root argument) ----------
+void insertBST(int x) {
+  Node *newNode = new Node(x);
 
-bool searchIter(Node *root, int key) {
-  Node *cur = root;
-  while (cur) {
-    if (key == cur->data)
-      return true;
-    if (key < cur->data)
-      cur = cur->left;
+  if (!root) {
+    root = newNode;
+    return;
+  }
+
+  Node *curr = root;
+  Node *parent = nullptr;
+
+  while (curr) {
+    parent = curr;
+    if (x < curr->data)
+      curr = curr->left;
+    else if (x > curr->data)
+      curr = curr->right;
     else
-      cur = cur->right;
+      return;
+  }
+
+  if (x < parent->data)
+    parent->left = newNode;
+  else
+    parent->right = newNode;
+}
+
+// ---------- SEARCH ----------
+bool searchRec(Node *node, int key) {
+  if (!node)
+    return false;
+  if (key == node->data)
+    return true;
+  return key < node->data ? searchRec(node->left, key)
+                          : searchRec(node->right, key);
+}
+
+bool searchIter(int key) {
+  Node *curr = root;
+  while (curr) {
+    if (curr->data == key)
+      return true;
+    curr = (key < curr->data ? curr->left : curr->right);
   }
   return false;
 }
 
-// ---------- BST DELETE ----------
-Node *minValueNode(Node *node) {
-  Node *cur = node;
-  while (cur && cur->left)
-    cur = cur->left;
-  return cur;
+// ---------- DELETE ----------
+Node *minNode(Node *node) {
+  while (node && node->left)
+    node = node->left;
+  return node;
 }
 
-Node *deleteNode(Node *root, int key) {
-  if (!root)
-    return nullptr;
+Node *deleteRec(Node *node, int key) {
+  if (!node)
+    return node;
 
-  if (key < root->data)
-    root->left = deleteNode(root->left, key);
-  else if (key > root->data)
-    root->right = deleteNode(root->right, key);
+  if (key < node->data)
+    node->left = deleteRec(node->left, key);
+  else if (key > node->data)
+    node->right = deleteRec(node->right, key);
   else {
-    // 0 or 1 child
-    if (!root->left) {
-      Node *temp = root->right;
-      delete root;
-      return temp;
-    } else if (!root->right) {
-      Node *temp = root->left;
-      delete root;
-      return temp;
+    if (!node->left) {
+      Node *t = node->right;
+      delete node;
+      return t;
+    } else if (!node->right) {
+      Node *t = node->left;
+      delete node;
+      return t;
     }
-    // 2 children: replace with inorder successor
-    Node *temp = minValueNode(root->right);
-    root->data = temp->data;
-    root->right = deleteNode(root->right, temp->data);
+    Node *t = minNode(node->right);
+    node->data = t->data;
+    node->right = deleteRec(node->right, t->data);
   }
-  return root;
+
+  return node;
 }
 
-// ---------- RECURSIVE TRAVERSALS ----------
-void inorderRec(Node *root) {
-  if (!root)
+void deleteNode(int key) { root = deleteRec(root, key); }
+
+// ---------- TRAVERSALS (recursive) ----------
+void inorderRec(Node *node) {
+  if (!node)
     return;
-  inorderRec(root->left);
-  cout << root->data << " ";
-  inorderRec(root->right);
+  inorderRec(node->left);
+  cout << node->data << " ";
+  inorderRec(node->right);
 }
 
-void preorderRec(Node *root) {
-  if (!root)
+void preorderRec(Node *node) {
+  if (!node)
     return;
-  cout << root->data << " ";
-  preorderRec(root->left);
-  preorderRec(root->right);
+  cout << node->data << " ";
+  preorderRec(node->left);
+  preorderRec(node->right);
 }
 
-void postorderRec(Node *root) {
-  if (!root)
+void postorderRec(Node *node) {
+  if (!node)
     return;
-  postorderRec(root->left);
-  postorderRec(root->right);
-  cout << root->data << " ";
+  postorderRec(node->left);
+  postorderRec(node->right);
+  cout << node->data << " ";
 }
 
-// ---------- ITERATIVE TRAVERSALS (ONE STACK EACH) ----------
-void inorderIter(Node *root) {
+// ---------- ITERATIVE TRAVERSALS ----------
+void inorderIter() {
   stack<Node *> st;
   Node *curr = root;
 
@@ -120,7 +134,7 @@ void inorderIter(Node *root) {
   }
 }
 
-void preorderIter(Node *root) {
+void preorderIter() {
   if (!root)
     return;
   stack<Node *> st;
@@ -130,7 +144,6 @@ void preorderIter(Node *root) {
     Node *curr = st.top();
     st.pop();
     cout << curr->data << " ";
-
     if (curr->right)
       st.push(curr->right);
     if (curr->left)
@@ -138,12 +151,9 @@ void preorderIter(Node *root) {
   }
 }
 
-void postorderIter(Node *root) {
-  if (!root)
-    return;
+void postorderIter() {
   stack<Node *> st;
-  Node *curr = root;
-  Node *last = nullptr;
+  Node *curr = root, *last = nullptr;
 
   while (curr || !st.empty()) {
     if (curr) {
@@ -162,73 +172,54 @@ void postorderIter(Node *root) {
   }
 }
 
-// ---------- MENU MAIN ----------
+// ---------- MENU ----------
 int main() {
-#ifndef ONLINE_JUDGE
-  cout << "Debug mode\n";
-#endif
-
-  Node *root = nullptr;
   int choice;
 
   while (true) {
-    cout << "\n1. Insert\n";
-    cout << "2. Delete\n";
-    cout << "3. Search (recursive & iterative)\n";
-    cout << "4. Recursive traversals (3)\n";
-    cout << "5. Iterative traversals (3, one stack each)\n";
-    cout << "6. Exit\n";
+    cout << "\n1. Insert\n2. Delete\n3. Search\n4. Recursive Traversals\n5. "
+            "Iterative Traversals\n6. Exit\n";
     cout << "Choice: ";
     cin >> choice;
 
     if (choice == 1) {
       int x;
-      cout << "Value to insert: ";
+      cout << "Insert value: ";
       cin >> x;
-      root = insertBST(root, x);
+      insertBST(x);
     } else if (choice == 2) {
       int x;
-      cout << "Value to delete: ";
+      cout << "Delete value: ";
       cin >> x;
-      root = deleteNode(root, x);
+      deleteNode(x);
     } else if (choice == 3) {
       int x;
-      cout << "Value to search: ";
+      cout << "Search value: ";
       cin >> x;
-      bool r1 = searchRec(root, x);
-      bool r2 = searchIter(root, x);
-      cout << "Recursive search: " << (r1 ? "Found" : "Not found") << "\n";
-      cout << "Iterative search: " << (r2 ? "Found" : "Not found") << "\n";
+      cout << "Recursive: " << (searchRec(root, x) ? "Found" : "Not found")
+           << "\n";
+      cout << "Iterative: " << (searchIter(x) ? "Found" : "Not found") << "\n";
     } else if (choice == 4) {
-      if (!root) {
-        cout << "Tree empty\n";
-        continue;
-      }
-      cout << "Inorder (rec):   ";
+      cout << "Inorder: ";
       inorderRec(root);
-      cout << "\nPreorder (rec):  ";
+      cout << "\n";
+      cout << "Preorder: ";
       preorderRec(root);
-      cout << "\nPostorder (rec): ";
+      cout << "\n";
+      cout << "Postorder: ";
       postorderRec(root);
       cout << "\n";
     } else if (choice == 5) {
-      if (!root) {
-        cout << "Tree empty\n";
-        continue;
-      }
-      cout << "Inorder (iter):   ";
-      inorderIter(root);
-      cout << "\nPreorder (iter):  ";
-      preorderIter(root);
-      cout << "\nPostorder (iter): ";
-      postorderIter(root);
+      cout << "Inorder: ";
+      inorderIter();
       cout << "\n";
-    } else if (choice == 6) {
+      cout << "Preorder: ";
+      preorderIter();
+      cout << "\n";
+      cout << "Postorder: ";
+      postorderIter();
+      cout << "\n";
+    } else
       break;
-    } else {
-      cout << "Invalid choice\n";
-    }
   }
-
-  return 0;
 }
