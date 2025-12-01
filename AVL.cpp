@@ -101,6 +101,15 @@ int main() {
 
 //   5
 // 30 20 40 10 25
+//   Inserts in mixed order → triggers rotations.
+
+// Contains:
+
+// LL case (insert 10)
+
+// RR case (insert 40)
+
+// Balanced inserts (25)
 
   Node *root = nullptr;
   int n;
