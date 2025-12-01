@@ -67,6 +67,12 @@ struct CuckooHash {
   }
 };
 
+// 1 1
+// 1 12
+// 4
+// 5
+
+
 int main() {
 #ifndef ONLINE_JUDGE
   cout << "Debug mode\n";
