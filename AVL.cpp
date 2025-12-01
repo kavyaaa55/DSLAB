@@ -99,6 +99,9 @@ int main() {
   cout << "Debug mode\n";
 #endif
 
+//   5
+// 30 20 40 10 25
+
   Node *root = nullptr;
   int n;
   cin >> n;
