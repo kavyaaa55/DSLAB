@@ -1,3 +1,4 @@
+# cook your dish here
 #include <bits/stdc++.h>
 using namespace std;
 
@@ -122,6 +123,15 @@ int main() {
 
   inorder(root);
   cout << endl;
+  
+//   4
+// 30 20 10 25
+
+// 4
+// 10 20 30 25
+
+// 3
+// 30 10 20
 
   return 0;
 }
